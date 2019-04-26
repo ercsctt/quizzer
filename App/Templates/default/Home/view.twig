@@ -1,0 +1,62 @@
+{% extends "base.twig" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+
+	<!-- CONTENT -->
+	<div class="qzr-content container">
+
+		<div class="alerts">
+			{% for message in flash %}
+				<div class="alert alert-{{ message.type }}" role="alert">
+					{{ message.body|striptags }}
+				</div>
+			{% endfor %}
+		</div>
+
+		<div class='row qzr-header'>
+			<div class='col-sm'>
+				<h3>{{ quiz.name|striptags|slice(0, 40) }}</h3>
+				<p>{{ quiz.description|striptags|length > 100 ? quiz.description|striptags|slice(0, 100) ~ '...' : quiz.description|striptags }}</p>
+			</div>
+			<div class='col-sm buttons'>
+				<a href='/'>
+					<button type="button" class="qzr-button good" data-toggle="modal" data-target="#createModal">
+						<i class="fas fa-arrow-left"></i> Go Back
+					</button>
+				</a>
+			</div>
+		</div>
+
+		{% if questions is empty %}
+			<div class="no-quizzes">
+				No questions have been created for this quiz!
+			</div>
+		{% else %}
+
+			{% for question in questions %}
+				<div class="qzr-question">
+
+					<div class="header">
+						<h4>Question {{ loop.index }}:</h4>
+						<h3>{{ question.contents|striptags }}</h3>
+					</div>
+
+					{% if user.permission_level > 1 %}
+						<ol type='A'>
+							{% for answer in question.answers %}
+								<li>{{ answer.content|striptags }}</li>
+							{% endfor %}
+						</ol>
+					{% endif %}
+
+				</div>
+			{% endfor %}
+
+		{% endif %}
+
+	</div>
+
+
+{% endblock %}

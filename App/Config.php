@@ -12,11 +12,11 @@ class Config {
 
 	const SHOW_ERRORS = true; //TODO: Disable for production
 
-  const USE_URL_TRAILING_SLASH = true;
+  const USE_URL_TRAILING_SLASH = false;
 
 	const TEMPLATE_DIR = '/App/Templates/default';
 
-	const TEMPLATE_CACHING = true;
+	const TEMPLATE_CACHING = false;
 
 	const CACHE_DIRECTORY = '/cache/files';
 

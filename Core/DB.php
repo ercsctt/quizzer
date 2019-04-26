@@ -14,25 +14,31 @@ use App\Config;
  */
 class DB {
 
-    private $pdo;
+  private $pdo;
 
-    function __construct($host, $username, $password, $dbname){
-        $this->pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password); // create pdo object...
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // set some flags
-    }
+  function __construct($host, $username, $password, $dbname){
+    $this->pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password); // create pdo object...
+    $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // set some flags
+  }
 
 	function getDB() {
-        return $this->pdo;
+    return $this->pdo;
 	}
 
-    function query($query, $params = array()){
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute($params);
+  function query($query, $params = array()){
+    $stmt = $this->pdo->prepare($query);
+    $res = $stmt->execute($params);
 
-        if(explode(' ', $query)[0] == 'SELECT'){
-            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $data;
-        }
+    if(explode(' ', $query)[0] == 'SELECT'){
+      $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $data;
+    }else{
+      return $res;
     }
+  }
+
+  function getLastInsertId(){
+    return $this->pdo->lastInsertId();
+  }
 
 }

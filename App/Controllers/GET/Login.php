@@ -9,26 +9,23 @@ use Core\View;
 use Core\Controller;
 
 use App\Models\User;
-use App\Models\Quiz;
+use App\Flash;
 
-class Home extends Controller {
+
+class Login extends Controller {
 	/**
-	 * Show the index page
+	 * Show the Login page
 	 *
 	 * @return void
 	 */
 	public function runAction() {
 		$user = new User();
 
-		if(!$user->isLoggedIn()){
-			header("Location: /login");
+		if($user->isLoggedIn()){
+			header("Location: /");
 			return;
 		}
 
-		$quiz = new Quiz();
-
-		View::renderTemplate('Home/index.twig', [
-			'quizzes' => $quiz->getAllQuizzes()
-		]);
+		View::renderTemplate('Home/login.twig');
 	}
 }

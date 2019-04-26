@@ -496,4 +496,10 @@ class Utilities extends Model {
 
 		return $purifier->purify($html);
 	}
+
+	public static function hashAndSalt($plainText){
+		return password_hash($plainText, PASSWORD_DEFAULT);
+	}
+
+
 }

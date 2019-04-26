@@ -17,7 +17,7 @@ abstract class Model {
 		static $db = null;
 
 		if($db === null) {
-            $db = new DB(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
+      $db = new DB(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
 		}
 
 		return $db;

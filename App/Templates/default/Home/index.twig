@@ -3,8 +3,104 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
-	<h1>Welcome</h1>
-	<p>Thanks for using Lightning!</p>
 
-	{{ html|raw }}
+	<!-- CONTENT -->
+	<div class="qzr-content container">
+
+		<div class="alerts">
+			{% for message in flash %}
+				<div class="alert alert-{{ message.type }}" role="alert">
+					{{ message.body|striptags }}
+				</div>
+			{% endfor %}
+		</div>
+
+		<div class='row qzr-header'>
+			<div class='col-sm'>
+				<h3>Quizzes</h3>
+				<p>View and manage quizzes</p>
+			</div>
+			<div class='col-sm buttons'>
+				{% if user.permission_level > 2 %}
+				<button type="button" class="qzr-button good" data-toggle="modal" data-target="#createModal">
+					<i class="fas fa-plus"></i> Create a Quiz
+				</button>
+				{% endif %}
+			</div>
+		</div>
+
+		{% if quizzes is empty %}
+			<div class="no-quizzes">
+				No quizzes have been created yet :(
+			</div>
+		{% else %}
+
+			{% for quiz in quizzes %}
+
+				<div class="qzr-table container">
+					<div class="row">
+
+						<div class='col-sm-3 info'>
+							<h4><a href='/quiz/{{ quiz.quiz_id }}'>{{ quiz.name|striptags|slice(0, 40) }}</a></h4>
+							<p>{{ quiz.description|striptags|length > 60 ? quiz.description|striptags|slice(0, 60) ~ '...' : quiz.description|striptags }}</p>
+						</div>
+						<div class='col-sm-2 meta'>
+							<p><span>{{ quiz.questions }}</span> Questions</p>
+						</div>
+						<div class='col-sm-2 meta'>
+							<p>Created <span>{{ quiz.created_when }}</span></p>
+						</div>
+						<div class='col-sm-5 buttons'>
+							<a href='/quiz/{{ quiz.quiz_id }}'>
+								<button type="button" class="qzr-button ok">
+									<i class="fas fa-eye"></i> View
+								</button>
+							</a>
+
+							{% if user.permission_level > 2 %}
+								<button class="btn dropdown-toggle qzr-button good" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+								<div class="dropdown-menu">
+										<a class='dropdown-item' href="/quiz/{{ quiz.quiz_id }}/edit"><i class="fas fa-edit"></i> Edit</a>
+										<div role="separator" class="dropdown-divider"></div>
+
+									<a class="dropdown-item red delete" href="/quiz/{{ quiz.quiz_id }}/delete"><i class="fas fa-trash"></i> Delete</a>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+			{% endfor %}
+
+		{% endif %}
+
+	</div>
+
+	<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-body qzr-create">
+
+					<h1>Create a Quiz</h1>
+					<p>Please fill in the fields below...</p>
+
+					<form action='/quiz/create' method="POST">
+						<input class='qzr-input' placeholder="Name" name='name' required>
+						<textarea class='qzr-input' maxlength="500" placeholder="Description" style='width:100%; height:150px;' name='description' required></textarea>
+
+						<div class="buttons">
+							<button type="submit" class="qzr-button good">
+								Create <i class="fas fa-arrow-right"></i>
+							</button>
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
 {% endblock %}

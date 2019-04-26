@@ -7,6 +7,7 @@ namespace Core;
 use \Twig_Environment;
 use \Twig_Loader_Filesystem;
 use App\Config;
+use App\Models\User;
 use App\Flash;
 
 /**
@@ -51,14 +52,20 @@ class View {
 				$opts['cache'] = Utilities::getAbsRoot() . Config::CACHE_DIRECTORY;
 			}
 
+			$user = new User();
+
 			$twig = new Twig_Environment($loader, $opts);
 
 			$twig->addGlobal('flash', Flash::getMessages());
 			$twig->addGlobal('uri',   Utilities::getURI());
-			$twig->addGlobal('template_dir', str_replace('/public', '', $tpl_dir));
 			$twig->addGlobal('body_class', $body_class);
 			$twig->addGlobal('current_year', date('Y'));
 			$twig->addGlobal('canonical', $canonical);
+
+			if($user->isLoggedIn()){
+					$twig->addGlobal('user', $user->getUserById($user->getUserId()));
+			}
+
 		}
 
 		return $twig->render($template, $args);

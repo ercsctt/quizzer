@@ -1,0 +1,35 @@
+{% extends "base.twig" %}
+
+{% block title %}Login{% endblock %}
+
+{% block body %}
+
+  <form action='/user/login' method='POST'>
+    <div class="qzr-login-content">
+
+      <h1>Login to Quizzer</h1>
+
+      {% for message in flash %}
+  			<div class="alert alert-{{ message.type }}" role="alert">
+  				{{ message.body }}
+  			</div>
+      {% endfor %}
+
+      <div class="qzr-login-wrapper">
+        <input name='email' type="text" class="qzr-login-input" placeholder="Email..." required>
+        <i class="icon fas fa-user"></i>
+      </div>
+
+      <div class="qzr-login-wrapper">
+        <input name='password' type="password" class="qzr-login-input" placeholder="Password..." required>
+        <i class="icon fas fa-lock"></i>
+      </div>
+
+      <button type="submit" class="qzr-button good">
+        Login <i class="fas fa-arrow-right"></i>
+      </button>
+
+    </div>
+  </form>
+
+{% endblock %}

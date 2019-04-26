@@ -1,0 +1,243 @@
+{% extends "base.twig" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+
+	<!-- CONTENT -->
+	<div class="qzr-content container">
+
+		<div class="alerts">
+			{% for message in flash %}
+				<div class="alert alert-{{ message.type }}" role="alert">
+					{{ message.body|striptags }}
+				</div>
+			{% endfor %}
+		</div>
+
+		<form id='editform' action='/quiz/{{ quiz.quiz_id }}/save' method="POST">
+
+			<div class='row qzr-header qzr-edit-header'>
+				<div class='col-sm'>
+					<input name='name' required class='qzr-input' placeholder="Name..." value='{{ quiz.name|striptags }}'>
+					<div class="description-wrapper">
+						<textarea name='description' required id='description' class='qzr-input' maxlength="200" placeholder="Description..." style='width:100%; height:120px;'>{{ quiz.description|striptags }}</textarea>
+						<span id='wordcount'>0 / 200</span>
+					</div>
+				</div>
+				<div class='col-sm buttons'>
+					<button id='save' type="save" class="qzr-button good">
+						<i class="fas fa-save"></i> Save & Quit
+					</button>
+
+					<a class='delete' href='/quiz/{{ quiz.quiz_id }}/delete'>
+						<button type="button" class="qzr-button bad">
+							<i class="fas fa-trash"></i> Delete Quiz
+						</button>
+					</a>
+				</div>
+			</div>
+
+			<section id='questions'>
+
+				{% for question in questions %}
+				<div class="qzr-edit-question" id='question-{{ loop.index }}'>
+
+					<div class='handle'>
+						<i class="fas fa-grip-vertical"></i>
+					</div>
+
+					<div class="header">
+						<h4>Question <span>{{ loop.index }}</span>:</h4>
+					</div>
+
+					<textarea class='qzr-input' required name="question[{{ loop.index }}][question]" maxlength="200" placeholder="Question..." style='width:100%; height:100px;'>{{ question.contents|striptags }}</textarea>
+
+					<ol type='A' id='test'>
+						{% for answer in question.answers %}
+						<li>
+							<div class="answer-wrapper">
+								<input type='text' class='qzr-input' placeholder="Answer..." name="question[{{ loop.parent.loop.index }}][answers][]" value='{{ answer.content|striptags }}' required>
+								{% if loop.index > 3 %}
+								<i class='fas fa-trash'></i>
+								{% endif %}
+							</div>
+						</li>
+						{% endfor %}
+
+					</ol>
+
+					<button type='button' class='add-answer qzr-button' onlick='return false;'
+					{% if question.answers|length >= 5 %}
+						hidden
+					{% endif %}
+					><i class="fas fa-plus"></i> Add an answer</a></button>
+
+					<div class="manager">
+						<a href='#' data-toggle="tooltip" data-placement="top" title="Delete this question"><i class="fas fa-trash"></i></a>
+					</div>
+
+				</div>
+				{% endfor %}
+
+			</section>
+
+			<button id='add-question' type='button' class="qzr-button middle">
+				<i class="fas fa-plus"></i> Add a question
+			</button>
+
+		</form>
+
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+
+	var questionsCount = {{ questions|length }};
+
+	jQuery(function(){
+		$('#description').on('keyup', function(element){
+			$('#wordcount').html(element.target.value.length + " / 200");
+		});
+
+		$("#questions").sortable({
+				placeholder: 'slide-placeholder',
+				handle: '.handle',
+				revert: 150,
+				start: function(e, ui){
+					placeholderHeight = ui.item.outerHeight();
+					ui.placeholder.height(placeholderHeight + 15);
+					$('<div class="slide-placeholder-animator" data-height="' + placeholderHeight + '"></div>').insertAfter(ui.placeholder);
+				},
+				change: function(event, ui) {
+
+					ui.placeholder.stop().height(0).animate({
+						height: ui.item.outerHeight() + 15
+					}, 300);
+
+					placeholderAnimatorHeight = parseInt($(".slide-placeholder-animator").attr("data-height"));
+
+					$(".slide-placeholder-animator").stop().height(placeholderAnimatorHeight + 15).animate({
+						height: 0
+					}, 300, function() {
+						$(this).remove();
+						placeholderHeight = ui.item.outerHeight();
+						$('<div class="slide-placeholder-animator" data-height="' + placeholderHeight + '"></div>').insertAfter(ui.placeholder);
+					});
+
+				},
+				stop: function(e, ui) {
+					$(".slide-placeholder-animator").remove();
+					jQuery('#editform').addClass('dirty');
+					updateIndexes();
+				},
+		});
+
+		jQuery('#description').trigger("keyup");
+
+		$(document.body).on('click', '.answer-wrapper i', function() {
+      if(confirm("Are you sure?")){
+        var childrenSize = this.parentElement.parentElement.parentElement.children.length - 1;
+
+        if(childrenSize < 5){
+          jQuery('#' + this.parentElement.parentElement.parentElement.parentElement.id + " .add-answer").attr('hidden', false);
+        }
+
+        this.parentElement.parentElement.remove();
+      }
+    });
+
+		$(document.body).on('click', '.manager i', function() {
+      if(confirm("Are you sure?")){
+				questionsCount--;
+        jQuery(this.parentElement.parentElement.parentElement).remove();
+				updateIndexes();
+      }
+    });
+
+    $(document.body).on('click', '.add-answer', function(e) {
+      var ol = $(e.currentTarget.offsetParent).find('ol')[0];
+
+      if(ol.children.length >= 5) return;
+
+			var id = this.parentElement.id.split("-")[1];
+
+      var toAppend = "";
+
+      toAppend += "<li>";
+      toAppend += "<div class='answer-wrapper'>";
+      toAppend += "<input type='text' name='question[" + id + "][answers][]' class='qzr-input' placeholder='Answer...' />";
+      toAppend += "<i class='fas fa-trash'></i>";
+      toAppend += "</div>";
+      toAppend += "</li>";
+
+      $(e.currentTarget.offsetParent).find('ol').append(toAppend);
+
+      if(ol.children.length >= 5){
+        e.target.hidden = true;
+      }
+
+			jQuery('#editform').addClass('dirty');
+			return false;
+
+    });
+
+		jQuery('#add-question').on('click', function(){
+
+			questionsCount++;
+
+			var toAppend = "";
+
+			toAppend += '<div class="qzr-edit-question" id="question-' + questionsCount + '">';
+
+				toAppend += '<div class="handle ui-sortable-handle">';
+					toAppend += '<i class="fas fa-grip-vertical"></i>';
+				toAppend += '</div>';
+
+				toAppend += '<div class="header">';
+					toAppend += '<h4>Question <span>' + questionsCount + '</span>:</h4>';
+				toAppend += '</div>';
+
+				toAppend += '<textarea name="question[' + questionsCount + '][question]" class="qzr-input" maxlength="200" placeholder="Question..." style="width:100%; height:100px;" required></textarea>';
+
+				toAppend += '<ol id="test" type="A">';
+
+					for(var i = 0; i < 3; i++){
+						toAppend += '<li>';
+							toAppend += '<div class="answer-wrapper">';
+								toAppend += '<input type="text" name="question[' + questionsCount + '][answers][]" class="qzr-input" placeholder="Answer..." required>';
+							toAppend += '</div>';
+						toAppend += '</li>';
+					}
+
+				toAppend += '</ol>';
+
+				toAppend += '<button type="button" class="add-answer qzr-button"><i class="fas fa-plus"></i> Add an answer</button>';
+
+				toAppend += '<div class="manager">';
+					toAppend += '<a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete this question"><i class="fas fa-trash"></i></a>';
+				toAppend += '</div>';
+
+			toAppend += '</div>';
+
+			jQuery('#questions').append(toAppend);
+			jQuery('#editform').addClass('dirty');
+
+		});
+
+		function updateIndexes(){
+			// this function re-indexes the question numbers
+			var i = 1;
+			for(var e of jQuery('#questions')[0].children){
+				if($(e).hasClass('qzr-edit-question')){
+					$(e).find("h4 span").html(i++);
+				}
+			}
+		}
+	});
+
+	</script>
+{% endblock %}

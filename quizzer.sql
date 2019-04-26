@@ -42,7 +42,6 @@ CREATE TABLE `questions` (
   `question_id` int(11) NOT NULL AUTO_INCREMENT,
   `quiz_id` int(11) DEFAULT NULL,
   `contents` text,
-  `correct_answer` int(11) DEFAULT NULL,
   PRIMARY KEY (`question_id`),
   UNIQUE KEY `question_id` (`question_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -79,7 +78,6 @@ CREATE TABLE `users` (
   `lastname` varchar(64) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
-  `password_salt` varchar(255) DEFAULT NULL,
   `permission_level` int(11) DEFAULT '1',
   `last_login` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
