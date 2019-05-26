@@ -20,16 +20,28 @@ class User extends Model {
 
 	function getUserById($userid){
 		$query = "SELECT * FROM users WHERE user_id = :userid";
-		return parent::getDB()->query($query, [
+        $res = parent::getDB()->query($query, [
 			":userid" => $userid
-		])[0];
+        ]);
+
+        if(isset($res[0])){
+            return $res[0];
+        }else{
+            return null;
+        }
 	}
 
 	function getUserByEmail($email){
 		$query = "SELECT * FROM users WHERE email = :email";
-		return parent::getDB()->query($query, [
+		$res = parent::getDB()->query($query, [
 			":email" => $email
-		])[0];
+		]);
+
+        if(isset($res[0])){
+            return $res[0];
+        }else{
+            return null;
+        }
 	}
 
 	function createUser($firstName, $lastName, $email, $plainTextPassword, $permissionLevel = 1){
@@ -48,6 +60,10 @@ class User extends Model {
 
 	function attemptLogin($email, $plainTextPassword){
 		$user = $this->getUserByEmail($email);
+
+        if(!isset($user)){
+            return false;
+        }
 
 		$storedHash = $user['password_hash'];
 

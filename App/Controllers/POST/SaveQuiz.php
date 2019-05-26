@@ -45,13 +45,15 @@ class SaveQuiz extends Controller {
 
 		$answers->deleteAll($this->id);
 
-		foreach($_POST['question'] as $index=>$question){
-			$questionId = $answers->createQuestion($this->id, $question['question']);
-
-			foreach($question['answers'] as $index=>$answer){
-				$answers->createAnswer($questionId, $answer);
-			}
-		}
+        if(isset($_POST['question'])){
+    		foreach($_POST['question'] as $index=>$question){
+    			$questionId = $answers->createQuestion($this->id, $question['question']);
+    
+    			foreach($question['answers'] as $index=>$answer){
+    				$answers->createAnswer($questionId, $answer);
+    			}
+            }
+        }
 
 		Flash::addMessage("Quiz has been updated.");
 		header("Location: /");
