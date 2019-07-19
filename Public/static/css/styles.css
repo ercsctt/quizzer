@@ -170,7 +170,7 @@ NAVIGATION
  font-size: 20px;
  height: 100%;
  vertical-align: middle;
- line-height: -moz-block-height;
+ line-height: 70px;
 }
 
 .nav-link:hover {
