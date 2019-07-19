@@ -5,5 +5,5 @@ This was written as-per-spec of BCS, and isn't really supposed to be used in a c
 
 You can play around with this at https://quizzer.ericscott.co.uk/
 
-Username: john@example.com
-Password: password
+Username: `john@example.com`
+Password: `password`
